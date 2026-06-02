@@ -1,12 +1,60 @@
-name: Build
-on: [push, pull_request]
+name: Build and Deploy
+
+# Triggers the workflow on push, pull request, or manually via a dropdown
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy to:'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - prod
+
 jobs:
   build:
-    name: Build
+    name: Build and Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      uses: docker/build-push-action@v1
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Build Docker Image
+      uses: docker/build-push-action@v5
       with:
         push: false
+        tags: my-app:latest
+
+  deploy:
+    name: Deploy to Environment
+    runs-on: ubuntu-latest
+    needs: build
+    # Only run deployment if it's a manual trigger (workflow_dispatch)
+    # Alternatively, you can remove this 'if' condition if you want push/PR to deploy to a default env.
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Deploying Application
+      run: |
+        echo "Starting deployment..."
+        echo "Target Environment: ${{ github.event.inputs.environment }}"
+        
+    # Example of conditional steps based on the dropdown selection
+    - name: Dev Specific Deployment
+      if: ${{ github.event.inputs.environment == 'dev' }}
+      run: |
+        echo "Running DEV deployment steps here..."
+
+    - name: Prod Specific Deployment
+      if: ${{ github.event.inputs.environment == 'prod' }}
+      run: |
+        echo "Running PROD deployment steps here..."
