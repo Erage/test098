@@ -6,16 +6,16 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Select the environment to deploy to:'
-        required: true
-        default: 'dev'
-        type: choice
-        options:
-        - dev
-        - prod
+  # workflow_dispatch:
+  #   inputs:
+  #     environment:
+  #       description: 'Select the environment to deploy to:'
+  #       required: true
+  #       default: 'dev'
+  #       type: choice
+  #       options:
+  #       - dev
+  #       - prod
 
 jobs:
   build:
